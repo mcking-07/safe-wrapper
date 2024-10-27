@@ -7,8 +7,8 @@ const FORMATS = ['cjs', 'esm'];
 
 const main = async () => {
   await promisify(exec)(TSC_PATH).then(() => FORMATS.forEach((format) => build({
-    entryPoints: ['src/index.js'], bundle: true, outfile: `lib/index.${format}.js`, format, minify: true, target: 'esnext',
+    entryPoints: ['src/index.js'], bundle: true, outfile: `lib/index.${format}.js`, format, minify: true, target: 'esnext', logLevel: 'info', 
   })));
 };
 
-main().then(() => console.log('[+] build successful')).catch((error) => console.error('[-] build failed with', error));
+main().catch((error) => console.error('[-] build failed with', error));
