@@ -2,14 +2,21 @@
   "name": "safe-wrapper",
   "version": "1.0.0",
   "description": "a js-util for safely wrapping synchronous and asynchronous functions to handle errors based on specified types.",
-  "main": "lib/index.cjs.js",
-  "types": "lib/index.d.ts",
-  "module": "lib/index.esm.js",
   "type": "module",
+  "main": "lib/index.cjs",
+  "types": "lib/index.d.ts",
+  "module": "lib/index.mjs",
   "scripts": {
     "build": "node esbuild.config.js",
     "start": "node src/index.js",
     "test": "node --test"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "types": "./lib/index.d.ts",
+      "require": "./lib/index.cjs"
+    }
   },
   "repository": {
     "type": "git",
