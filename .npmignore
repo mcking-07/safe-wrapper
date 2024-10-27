@@ -1,0 +1,22 @@
+# git files
+.git/**/*
+.gitignore
+
+# node modules
+node_modules
+
+# npm files
+.nvmrc
+npm-shrinkwrap.json
+
+# build configs
+esbuild.*.js
+
+# src files
+src/**/*
+
+# test files
+test/**/*
+
+# ts files
+tsconfig.json
