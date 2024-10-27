@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "allowJs": true,
+    "checkJs": false,
+    "module": "esnext",
+    "strict": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "lib",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "strictNullChecks": true,
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
