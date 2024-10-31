@@ -23,9 +23,9 @@ jobs:
           current_version=$(node -p "require('./package.json').version")
 
           if [ "$current_version" != "$previous_version" ]; then
-            echo "publish=true" >> $github_env
+            echo "publish=true" >> $GITHUB_ENV
           else
-            echo "publish=false" >> $github_env
+            echo "publish=false" >> $GITHUB_ENV
           fi
 
       - name: publish
