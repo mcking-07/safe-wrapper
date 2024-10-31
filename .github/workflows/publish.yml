@@ -1,0 +1,35 @@
+---
+name: publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: npm run ci
+
+      - name: check version
+        run: |
+          previous_version=$(npm show . version || echo "0.0.0")
+          current_version=$(node -p "require('./package.json').version")
+
+          if [ "$current_version" != "$previous_version" ]; then
+            echo "publish=true" >> $github_env
+          else
+            echo "publish=false" >> $github_env
+          fi
+
+      - name: publish
+        if: env.publish == 'true'
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
