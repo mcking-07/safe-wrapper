@@ -1,40 +1,49 @@
 /**
- * catches errors based on the specified types.
+ * creates a consistent response structure for the package.
  * 
- * @param {Error} error - the error to be caught.
- * @param {Array<ErrorConstructor>} [types=[]] - an optional array of error classes to check against.
- * @returns {[Error|null, null]} - returns an array where the first element is the error if it matches one of the types, or null if it doesn't.
- * @throws {Error} - throws the error if it doesn't match any of the specified types.
+ * @param {Object} params - an object with `error`, `data` and `result` keys
+ * @param {Error} [params.error = null] - the error object.
+ * @param {any} [params.data = null] - the data object.
+ * @param {any} [params.result = null] - the result object.
+ * @returns {[Error, null | null, any]} - a tuple where the first element is the error and the second element is the result or data (whichever is available).
+ */
+const response = ({ error = null, data = null, result = null }) => [error, result || data];
+
+/**
+ * catches errors based on the specified types (if available) and returns them in a consistent response structure.
+ * @param {Error} error - the error object.
+ * @param {Array<ErrorConstructor>} [types = []] - an optional array of error types to check against.
+ * @returns {response} - a consistent response structure, `[error, result]`.
+ * @throws {Error} - if types are specified and the error is not an instance of any of the types.
  */
 const caught = (error, types = []) => {
-  if (!types.length) {
-    return [error, null];
-  }
+  const returnable = !types.length || types.some(type => error instanceof type);
 
-  if (types.some(type => error instanceof type)) {
-    return [error, null];
+  if (returnable) {
+    return response({ error });
   }
 
   throw error;
 };
 
 /**
- * safely executes the result of a function or a promise and handles any errors that occur.
- * 
- * @param {any} response - the result of a synchronous or asynchronous function, or a promise to execute.
- * @param {Array<ErrorConstructor>} [types=[]] - an optional array of error classes to check against.
- * @returns {Promise<[null, any]|[Error, null]>|[null, any]|[Error, null]} - returns an array where the first element is null if successful, or an error if it fails. if the input is a promise, it resolves to that array; otherwise, it returns the array directly.
+ * safely executes a synchronous or asynchronous action, handles any errors that occur and returns the result in a consistent response structure.
+ * @param {Function} action - the function to be wrapped, which can either be synchronous or asynchronous.
+ * @param {Array<ErrorConstructor>} [types = []] - an optional array of error types to check against.
+ * @returns {Promise<[Error, null] | [null, any]> | [Error, null] | [null, any]} - a tuple where the first element is null, if the execution was successful, or an error object if an error occurred. the second element is the result of the action, if available.
  */
-const safe = (response, types = []) => {
-  if (response instanceof Promise) {
-    return response.then(result => [null, result]).catch(error => caught(error, types));
-  }
+const safe = (action, types = []) => (...args) => {
+  try {
+    const result = action(...args);
 
-  if (response instanceof Error) {
-    return caught(response, types);
-  }
+    if (result instanceof Promise) {
+      return result.then(data => response({ data })).catch(error => caught(error, types));
+    }
 
-  return [null, response];
+    return response({ result });
+  } catch (error) {
+    return caught(error, types);
+  }
 };
 
 export { safe };
