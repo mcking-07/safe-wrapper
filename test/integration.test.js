@@ -3,49 +3,75 @@ import { deepStrictEqual, rejects, throws } from 'node:assert';
 import { safe } from '../src/index.js';
 
 test('safe - synchronous function', () => {
-  const sync = () => 'success';
+  const sync = safe(() => 'success');
 
-  deepStrictEqual(safe(sync()), [null, 'success']);
+  deepStrictEqual(sync(), [null, 'success']);
 });
 
 test('safe - synchronous function with error', () => {
-  const sync = () => new Error('sync error');
+  const sync = safe(() => { throw new Error('sync error'); });
 
-  deepStrictEqual(safe(sync()), [new Error('sync error'), null]);
+  deepStrictEqual(sync(), [new Error('sync error'), null]);
 });
 
 test('safe - synchronous function with error type check', async () => {
-  const sync = () => new TypeError('type error');
+  const sync = safe(() => { throw new TypeError('type error'); }, [TypeError]);
 
-  deepStrictEqual(safe(sync(), [TypeError]), [new TypeError('type error'), null]);
+  deepStrictEqual(sync(), [new TypeError('type error'), null]);
 });
 
 test('safe - synchronous function with unknown error', async () => {
-  const sync = () => new Error('unknown error');
+  const sync = () => { throw new Error('unknown error'); };
 
   throws(() => safe(sync(), [TypeError]), { name: 'Error', message: 'unknown error' });
 });
 
 test('safe - asynchronous function', async () => {
-  const async = async () => 'async success';
+  const async = safe(async () => 'async success');
 
-  deepStrictEqual(await safe(async()), [null, 'async success']);
+  deepStrictEqual(await async(), [null, 'async success']);
 });
 
 test('safe - asynchronous function with error', async () => {
   const async = async () => { throw new Error('async error'); };
+  const safeAsync = safe(async);
 
-  deepStrictEqual(await safe(async()), [new Error('async error'), null]);
+  deepStrictEqual(await safeAsync(), [new Error('async error'), null]);
 });
 
 test('safe - asynchronous function with error type check', async () => {
   const async = async () => { throw new TypeError('type error'); };
+  const safeAsync = safe(async, [TypeError]);
 
-  deepStrictEqual(await safe(async(), [TypeError]), [new TypeError('type error'), null]);
+  deepStrictEqual(await safeAsync(), [new TypeError('type error'), null]);
 });
 
 test('safe - asynchronous function with unknown error', async () => {
-  const async = async () => { throw new Error('unknown error'); };
+  const async = safe(async () => { throw new Error('unknown error'); }, [TypeError]);
 
-  await rejects(safe(async(), [TypeError]), { name: 'Error', message: 'unknown error' });
+  await rejects(async(), { name: 'Error', message: 'unknown error' });
+});
+
+test('safe - built-in function', () => {
+  const safeJsonParse = safe(JSON.parse);
+
+  deepStrictEqual(safeJsonParse('{"key": "value"}'), [null, { key: 'value' }]);
+});
+
+test('safe - built-in function with error', () => {
+  const safeJsonParse = safe(JSON.parse);
+
+  deepStrictEqual(safeJsonParse('invalid json'), [new SyntaxError('Unexpected token \'i\', "invalid json" is not valid JSON'), null]);
+});
+
+test('safe - built-in function with error type check', () => {
+  const safeJsonParse = safe(JSON.parse, [SyntaxError]);
+
+  deepStrictEqual(safeJsonParse('invalid json'), [new SyntaxError('Unexpected token \'i\', "invalid json" is not valid JSON'), null]);
+});
+
+test('safe - built-in function with unknown error', () => {
+  const safeJsonParse = safe(JSON.parse, [TypeError]);
+
+  throws(() => safeJsonParse('{ key: "value" }'), { name: 'SyntaxError', message: 'Expected property name or \'}\' in JSON at position 2' });
 });
