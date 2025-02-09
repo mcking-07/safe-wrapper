@@ -75,3 +75,16 @@ test('safe - built-in function with unknown error', () => {
 
   throws(() => safeJsonParse('{ key: "value" }'), { name: 'SyntaxError', message: 'Expected property name or \'}\' in JSON at position 2' });
 });
+
+test('safe - synchronous function with transformed error', () => {
+  const sync = safe(() => { throw new Error('sync error'); }, [], error => new Error(`transformed ${error.message}`));
+
+  deepStrictEqual(sync(), [new Error('transformed sync error'), null]);
+});
+
+test('safe - asynchronous function with transformed error', async () => {
+  const async = async () => { throw new Error('async error'); };
+  const safeAsync = safe(async, [], async (error) => new Error(`transformed ${error.message}`));
+
+  deepStrictEqual(await safeAsync(), [new Error('transformed async error'), null]);
+});
