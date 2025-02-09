@@ -22,9 +22,15 @@ jobs:
           previous_version=$(npm show . version || echo "0.0.0")
           current_version=$(node -p "require('./package.json').version")
 
-          if [ "$current_version" != "$previous_version" ]; then
+          if [ "$current_version" > "$previous_version" ]; then
+            echo -e "[+] current version[$current_version] is greater than previous version[$previous_version]"
+            echo -e "[+] publishing package to npm registry"
+
             echo "publish=true" >> $GITHUB_ENV
           else
+            echo -e "[-] current version[$current_version] is not greater than previous version[$previous_version]"
+            echo -e "[-] skipping publishing package to npm registry"
+
             echo "publish=false" >> $GITHUB_ENV
           fi
 
