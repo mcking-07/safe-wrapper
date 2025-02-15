@@ -1,6 +1,6 @@
 {
   "name": "safe-wrapper",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "a js-util for safely wrapping synchronous and asynchronous functions to handle errors based on specified types.",
   "type": "module",
   "main": "lib/index.cjs",
