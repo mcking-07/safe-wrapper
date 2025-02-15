@@ -11,7 +11,9 @@ safe-wrapper is a lightweight utility for javascript that simplifies error handl
 
 - handles synchronous and asynchronous functions.
 - supports specifying error types to control which errors are caught and handled.
-- returns consistent responses in `[error, result]` format where error is null if no error occurred.
+- returns a consistent response in `[error, result]` format,
+  - `error`: null if successful, else an error (or transformed object).
+  - `result`: return value (sync) or resolved value (async) when successful, else null.
 - supports custom error transformation for advanced error handling.
 
 ### Installation
@@ -92,7 +94,7 @@ const safeSync = safe(sync, [TypeError, RangeError]);
 const [error, result] = safeSync(args);
 ```
 
-#### using custom error transformer
+#### using synchronous custom error transformer
 
 you can provide a custom error transformer function to modify how errors are handled:
 
@@ -106,13 +108,40 @@ const transformer = (error) => ({
 });
 
 const safeWithTransform = safe(
-  () => { throw new Error('custom error'); },
+  () => { throw new Error('custom sync error'); },
   [Error],
   transformer
 );
 
 const [error, result] = safeWithTransform();
-// error will be: { code: 'Error', message: 'custom error', timestamp: Date }
+// error will be: { code: 'Error', message: 'custom sync error', timestamp: Date }
+```
+
+#### using asynchronous custom error transformer
+
+you can provide an asynchronous custom error transformer to modify how errors are handled.
+
+```javascript
+import { safe } from 'safe-wrapper';
+
+const transformer = async (error) => {
+  await report(error);
+
+  return {
+    code: error.name,
+    message: error.message,
+    timestamp: new Date()
+  }
+}
+
+const safeWithTransform = safe(
+  async () => { throw new Error('custom async error'); },
+  [Error],
+  transformer
+);
+
+const [error, result] = await safeWithTransform();
+// error will be: { code: 'Error', message: 'custom async error', timestamp: Date }
 ```
 
 #### wrapping built-in functions
@@ -138,4 +167,4 @@ const [error, result] = safe(Object.keys, [TypeError])(null);
   - transformer (function, optional): a function that takes an error object and returns a transformed version of it. if not provided, the original error is used.
 - returns `[error, result]`
   - error (error | null): the error object if error occurred, otherwise null. if an transformer is provided, this will be the transformed error.
-  - result (any): the result of the action function if no error occurred, otherwise null.
+  - result (result | null): the result of the action function if no error occurred, otherwise null.
