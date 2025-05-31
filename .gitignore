@@ -3,3 +3,6 @@ lib
 
 # node modules
 node_modules
+
+# playground
+.playground

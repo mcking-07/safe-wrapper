@@ -21,3 +21,6 @@ test/**/*
 
 # ts files
 tsconfig.json
+
+# playground
+.playground
