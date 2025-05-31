@@ -5,7 +5,9 @@
 [![Build Status](https://github.com/mcking-07/safe-wrapper/workflows/publish/badge.svg)](https://github.com/mcking-07/safe-wrapper/actions)
 [![npm downloads](https://img.shields.io/npm/dm/safe-wrapper.svg)](https://www.npmjs.com/package/safe-wrapper)
 
-safe-wrapper is a lightweight utility for javascript that simplifies error handling for both synchronous and asynchronous functions. inspired by the [safe assignment operator proposal](https://github.com/arthurfiorette/proposal-safe-assignment-operator), this utility allows for graceful error management by wrapping functions in a way that enables error handling without the need for explicit `try-catch` blocks.
+safe-wrapper is a lightweight, typescript-first utility that simplifies error handling for both synchronous and asynchronous functions. inspired by the [safe assignment operator proposal](https://github.com/arthurfiorette/proposal-safe-assignment-operator), this utility allows for graceful error management by wrapping functions in a way that enables error handling without the need for explicit `try-catch` blocks.
+
+in modern javascript and typescript, dealing with functions that might throw errors (especially in asynchronous operations or third-party libraries) often leads to repetitive boilerplate. safe-wrapper offers a cleaner and a more functional approach by reducing boilerplate, enabling full typescript support for type inference, and allowing for flexible error handling by letting you filter specific error types, or transform them into custom formats.
 
 ### Features
 
@@ -15,6 +17,7 @@ safe-wrapper is a lightweight utility for javascript that simplifies error handl
   - `error`: null if successful, else an error (or transformed object).
   - `result`: return value (sync) or resolved value (async) when successful, else null.
 - supports custom error transformation for advanced error handling.
+- written in typescript with comprehensive type definitions, enabling full type inference support.
 
 ### Installation
 
@@ -24,7 +27,7 @@ npm install safe-wrapper
 
 ### Usage
 
-import `safe` from `safe-wrapper` to use it with any function.
+import `safe` from `safe-wrapper` to use it with any function. the types for `error` and `result` are automatically inferred.
 
 the `safe` function takes a target function (synchronous or asynchronous) and returns a function which handles errors and returns a response in a consistent way. the function returns an array `[error, result]`, where `error` is an instance of the specified error type or `null` if successful, and `result` is the result of the function when there is no error.
 
@@ -79,10 +82,10 @@ const [error, result] = await safeAsync(args);
 
 we can specify multiple error types when wrapping a function, enabling safe to catch any of the specified errors.
 
-```javascript
+```typescript
 import { safe } from 'safe-wrapper';
 
-const sync = (args) => {
+const sync = (args: boolean): string => {
   if (args) {
     throw new TypeError('sync type error occurred');
   } else {
@@ -98,10 +101,12 @@ const [error, result] = safeSync(args);
 
 you can provide a custom error transformer function to modify how errors are handled:
 
-```javascript
+```typescript
 import { safe } from 'safe-wrapper';
 
-const transformer = (error) => ({
+type TransformedError = { code: string, message: string, timestamp: Date };
+
+const transformer = (error: Error): TransformedError => ({
   code: error.name,
   message: error.message,
   timestamp: new Date()
@@ -114,17 +119,19 @@ const safeWithTransform = safe(
 );
 
 const [error, result] = safeWithTransform();
-// error will be: { code: 'Error', message: 'custom sync error', timestamp: Date }
+// error will be of type TransformedError as: { code: 'Error', message: 'custom sync error', timestamp: Date }
 ```
 
 #### using asynchronous custom error transformer
 
 you can provide an asynchronous custom error transformer to modify how errors are handled.
 
-```javascript
+```typescript
 import { safe } from 'safe-wrapper';
 
-const transformer = async (error) => {
+type AsyncTransformedError = { code: string, message: string, timestamp: Date };
+
+const transformer = async (error: Error): Promise<AsyncTransformedError> => {
   await report(error);
 
   return {
@@ -141,7 +148,7 @@ const safeWithTransform = safe(
 );
 
 const [error, result] = await safeWithTransform();
-// error will be: { code: 'Error', message: 'custom async error', timestamp: Date }
+// error will be of type AsyncTransformedError as: { code: 'Error', message: 'custom async error', timestamp: Date }
 ```
 
 #### wrapping built-in functions
