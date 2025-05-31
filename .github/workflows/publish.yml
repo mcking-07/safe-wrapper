@@ -18,24 +18,23 @@ jobs:
       - run: npm run ci
 
       - name: check version
+        id: version_check
         run: |
           previous_version=$(npm show . version || echo "0.0.0")
           current_version=$(node -p "require('./package.json').version")
 
-          if [ "$current_version" > "$previous_version" ]; then
-            echo -e "[+] current version[$current_version] is greater than previous version[$previous_version]"
-            echo -e "[+] publishing package to npm registry"
+          if dpkg --compare-versions "$current_version" gt "$previous_version"; then
+            echo "[+] new version detected [$current_version > $previous_version], publishing..."
 
-            echo "publish=true" >> $GITHUB_ENV
+            echo "publish=true" >> $GITHUB_OUTPUT
           else
-            echo -e "[-] current version[$current_version] is not greater than previous version[$previous_version]"
-            echo -e "[-] skipping publishing package to npm registry"
+            echo "[-] no new version, skipping publishing..."
 
-            echo "publish=false" >> $GITHUB_ENV
+            echo "publish=false" >> $GITHUB_OUTPUT
           fi
 
       - name: publish
-        if: env.publish == 'true'
+        if: ${{ steps.version_check.outputs.publish == 'true' }}
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
