@@ -1,6 +1,6 @@
 {
   "name": "safe-wrapper",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "a js-util for safely wrapping synchronous and asynchronous functions to handle errors based on specified types.",
   "type": "module",
   "main": "lib/index.cjs",
@@ -9,8 +9,8 @@
   "scripts": {
     "build": "rm -rf lib && node esbuild.config.js",
     "ci": "npm install --clean-install && npm test && npm run build",
-    "start": "node src/index.js",
-    "test": "node --test"
+    "start": "tsx src/index.ts",
+    "test": "tsx test/*.test.js"
   },
   "exports": {
     ".": {
@@ -37,7 +37,8 @@
   },
   "homepage": "https://github.com/mcking-07/safe-wrapper#readme",
   "devDependencies": {
-    "esbuild": "^0.24.0",
-    "typescript": "^5.6.3"
+    "esbuild": "^0.25.5",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }
