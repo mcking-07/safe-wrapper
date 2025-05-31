@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { deepStrictEqual, rejects, throws } from 'node:assert';
-import { safe } from '../src/index.js';
+import { safe } from '../src/index.ts';
 
 test('safe - synchronous function', () => {
   const sync = safe(() => 'success');

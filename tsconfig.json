@@ -1,16 +1,22 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "allowJs": true,
+    "lib": [
+      "esnext"
+    ],
+    "allowJs": false,
     "checkJs": false,
-    "module": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "strict": true,
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "lib",
     "esModuleInterop": true,
     "isolatedModules": true,
-    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
   },
   "include": [
     "src/**/*"
