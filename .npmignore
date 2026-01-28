@@ -12,6 +12,7 @@ npm-shrinkwrap.json
 
 # build configs
 esbuild.*.js
+esbuild.*.ts
 
 # src files
 src/**/*
