@@ -1,6 +1,6 @@
 {
   "name": "safe-wrapper",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "a ts-util for safely wrapping synchronous and asynchronous functions to handle errors based on specified types.",
   "type": "module",
   "main": "lib/index.cjs",
