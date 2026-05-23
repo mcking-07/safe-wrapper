@@ -9,7 +9,7 @@
     "strict": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "outDir": "lib",
     "esModuleInterop": true,
     "isolatedModules": true,
