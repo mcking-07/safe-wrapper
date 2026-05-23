@@ -1,6 +1,8 @@
 type Result<ResponseType, ErrorType> = [ErrorType, null] | [null, ResponseType];
 
-type Safe<ActionType extends (...args: unknown[]) => unknown, ErrorType = Error> = ReturnType<ActionType> extends Promise<infer ResponseType> ? (...args: Parameters<ActionType>) => Promise<Result<ResponseType, ErrorType>> : (...args: Parameters<ActionType>) => Result<ReturnType<ActionType>, ErrorType>;
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+
+type Safe<ActionType extends (...args: unknown[]) => unknown, ErrorType = Error> = [IsAny<ReturnType<ActionType>>, ReturnType<ActionType>] extends [false, Promise<infer ResponseType>] ? (...args: Parameters<ActionType>) => Promise<Result<ResponseType, ErrorType>> : (...args: Parameters<ActionType>) => Result<ReturnType<ActionType>, ErrorType>;
 
 type ErrorConstructor = new (...args: any[]) => Error;
 
@@ -34,7 +36,7 @@ const safe = <ActionType extends (...args: any[]) => any, ErrorType = Error>(act
     const result = action(...args);
 
     if (promised(result)) {
-      return result.then((data: ReturnType<ActionType>): Result<ReturnType<ActionType>, Error> => response({ data })).catch((error: Error) => caught(error, types, transformer));
+      return result.then((data: ReturnType<ActionType>): Result<ReturnType<ActionType>, ErrorType> => response({ data })).catch((error: Error) => caught(error, types, transformer));
     }
 
     return response({ data: result });

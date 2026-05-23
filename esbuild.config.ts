@@ -1,5 +1,6 @@
 import { build, type Format, type Platform } from 'esbuild';
 import { exec } from 'node:child_process';
+import process from 'node:process';
 import { promisify } from 'node:util';
 
 const TSC_PATH = './node_modules/.bin/tsc';
